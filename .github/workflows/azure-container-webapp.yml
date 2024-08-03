@@ -22,7 +22,7 @@ jobs:
         with:
           registry: arc14800.azurecr.io
           username: arc14800
-          password: ${{ secrets.LOYA_ACR_AZURE_PASSWORD }}
+          password: ${{ secrets.TELEGRAM_POST_BOT_PASSWORD }}
 
       - name: Lowercase the repo name and username
         run: echo "REPO=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
