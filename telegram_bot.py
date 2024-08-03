@@ -10,7 +10,7 @@ import os
 import glob
 
 # Настройка логирования
-logging.basicConfig(filename='/var/log/app.log', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 # chat_id invest_stream = -1001474010780
 # ID администратора
@@ -254,7 +254,7 @@ class TelegramBot:
     async def log_bot_activity(self):
         while self.running:
             logger.info("Бот работает")
-            await asyncio.sleep(60)  # Ждем одну минуту
+            await asyncio.sleep(300)  # Ждем одну минуту
 
     def run(self):
         self.client.loop.create_task(self.log_bot_activity())
