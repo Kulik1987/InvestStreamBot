@@ -7,6 +7,7 @@ from openai_client import OpenAIClient
 from telethon.errors import FloodWaitError
 import asyncio
 import os
+import glob
 
 # Настройка логирования
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 # chat_id invest_stream = -1001474010780
 # ID администратора
 ADMIN_IDS = [431969815, 707717005, 215142869]
-CHAT_ID = config.TELEGRAM_CHAT_ID
+chat_id= int(config.TELEGRAM_CHAT_ID)
 
 # Настройка клиента Telethon
 api_id = config.API_ID
