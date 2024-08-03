@@ -251,13 +251,7 @@ class TelegramBot:
             except Exception as e:
                 logger.error(f"Ошибка при отправке сообщения пользователю {member.id}: {e}")
 
-    async def log_bot_activity(self):
-        while self.running:
-            logger.info("Бот работает")
-            await asyncio.sleep(300)  # Ждем одну минуту
-
     def run(self):
-        self.client.loop.create_task(self.log_bot_activity())
         self.client.on(events.NewMessage(pattern='/start'))(self.start)
         self.client.on(events.NewMessage(incoming=True))(self.message_handler)
         self.client.on(events.NewMessage(incoming=True, func=lambda e: e.document or e.photo))(self.file_handler)
