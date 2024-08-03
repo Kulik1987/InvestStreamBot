@@ -14,7 +14,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 # chat_id invest_stream = -1001474010780
 # ID администратора
-ADMIN_IDS = [431969815, 707717005, 215142869]
+ADMIN_IDS = [431969815, 707717005, 215142869, 815456809]
 chat_id= int(config.TELEGRAM_CHAT_ID)
 
 # Настройка клиента Telethon
