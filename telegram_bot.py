@@ -30,6 +30,7 @@ class TelegramBot:
         self.expecting_image = {}
         self.awaiting_response = {}
         self.awaiting_broadcast_message = False  # Для отслеживания ожидания текстового сообщения
+        self.running = True  # Флаг для работы функции логирования
 
     async def start(self, event):
         sender = await event.get_sender()
@@ -251,7 +252,13 @@ class TelegramBot:
             except Exception as e:
                 logger.error(f"Ошибка при отправке сообщения пользователю {member.id}: {e}")
 
+    async def log_bot_activity(self):
+        while self.running:
+            logger.info("Бот работает")
+            await asyncio.sleep(60)  # Ждем одну минуту
+
     def run(self):
+        self.client.loop.create_task(self.log_bot_activity())
         self.client.on(events.NewMessage(pattern='/start'))(self.start)
         self.client.on(events.NewMessage(incoming=True))(self.message_handler)
         self.client.on(events.NewMessage(incoming=True, func=lambda e: e.document or e.photo))(self.file_handler)
