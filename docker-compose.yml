@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  telegram_bot:
+    build: .
+    container_name: telegram_bot
+    environment:
+      - TELEGRAM_BOT_TOKEN=7056880250:AAEJwW0PVBS7Lp6pABplUSKUXqSOPZ4boco
+      - OPENAI_API_KEY=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
+      - DATABASE_URL=postgresql://pkulikovskiy:Airsoft1987@host.docker.internal:5433/postgres
+    restart: always
+    ports:
+      - "5000:5000"
+
+networks:
+  default:
+    driver: bridge
