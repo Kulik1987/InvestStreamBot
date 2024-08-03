@@ -38,8 +38,7 @@ class TelegramBot:
         if user_id in ADMIN_IDS:
             buttons = [
                 [Button.text('Загрузить анонс'), Button.text('Создать сообщение')],
-                [Button.text('Разослать анонс'), Button.text('Разослать сообщение')],
-                [Button.text('/list_members')]
+                [Button.text('Разослать анонс'), Button.text('Разослать сообщение')]
             ]
             await self.client.send_message(
                 event.chat_id,
