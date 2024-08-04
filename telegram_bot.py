@@ -14,7 +14,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 # chat_id invest_stream = -1001474010780
 # ID администратора
-ADMIN_IDS = [707717005, 215142869, 815456809]
+ADMIN_IDS = [431969815, 707717005, 215142869, 815456809]
 chat_id= int(config.TELEGRAM_CHAT_ID)
 
 # Настройка клиента Telethon
@@ -47,6 +47,10 @@ class TelegramBot:
             )
 
     async def message_handler(self, event):
+        # Игнорирование сообщений из группы
+        if isinstance(event.peer_id, PeerChannel):
+            return
+
         sender = await event.get_sender()
         user_id = sender.id
 
@@ -62,14 +66,14 @@ class TelegramBot:
                 self.awaiting_response[user_id] = True
             elif text == 'Разослать анонс':
                 logger.info('Кнопка Разослать анонс нажата')
-                await self.send_announcement_to_group()
+                await self.send_announcement_to_group(event)
             elif text == 'Разослать сообщение':
                 logger.info('Кнопка Разослать сообщение нажата')
                 await event.respond("Пожалуйста, введите сообщение для рассылки:")
                 self.awaiting_broadcast_message = True
             elif self.awaiting_broadcast_message:
                 logger.info(f'Получено сообщение для рассылки: {text}')
-                await self.send_broadcast_message(text)
+                await self.send_broadcast_message(event, text)
                 self.awaiting_broadcast_message = False
             elif self.awaiting_response.get(user_id, False):
                 logger.info(f'Получено сообщение от пользователя для OpenAI: {text}')
@@ -167,24 +171,7 @@ class TelegramBot:
         else:
             await event.respond("Этот чат не является супергруппой.")
 
-    async def send_message_to_members(self, members, message):
-        for member in members:
-            try:
-                if member.bot:
-                    continue
-                if not member.username and not member.phone:
-                    continue
-                await self.client.send_message(member.id, message)
-                logger.info(f"Сообщение отправлено пользователю {member.id}")
-                await asyncio.sleep(1)
-            except FloodWaitError as e:
-                logger.warning(f"Переполнение: задержка на {e.seconds} секунд.")
-                await asyncio.sleep(e.seconds)
-            except Exception as e:
-                logger.error(f"Ошибка при отправке сообщения пользователю {member.id}: {e}")
-
-
-    async def send_announcement_to_group(self):
+    async def send_announcement_to_group(self, event):
         # Поиск файла с именем 'announcement' и любым расширением в папке load_data
         file_pattern = 'load_data/announcement.*'
         files = glob.glob(file_pattern)
@@ -211,6 +198,8 @@ class TelegramBot:
             await event.respond("Список участников пуст или не удалось его получить.")
             return
 
+        successful_sends = 0
+
         for member in members:
             try:
                 if member.bot:
@@ -219,6 +208,7 @@ class TelegramBot:
                     continue
                 await self.client.send_file(member.id, image_path, caption="Анонс")
                 logger.info(f"Изображение отправлено пользователю {member.id}")
+                successful_sends += 1
                 await asyncio.sleep(1)
             except FloodWaitError as e:
                 logger.warning(f"Переполнение: задержка на {e.seconds} секунд.")
@@ -226,7 +216,12 @@ class TelegramBot:
             except Exception as e:
                 logger.error(f"Ошибка при отправке изображения пользователю {member.id}: {e}")
 
-    async def send_broadcast_message(self, message):
+        # Сообщаем админу о количестве успешно отправленных сообщений
+        sender = await event.get_sender()
+        admin_id = sender.id
+        await self.client.send_message(admin_id, f"Сообщение успешно отправлено {successful_sends} участникам.")
+
+    async def send_broadcast_message(self, event, message):
         try:
             full_channel = await client.get_entity(PeerChannel(chat_id))
         except Exception as e:
@@ -243,6 +238,8 @@ class TelegramBot:
             await event.respond("Список участников пуст или не удалось его получить.")
             return
 
+        successful_sends = 0
+
         for member in members:
             try:
                 if member.bot:
@@ -251,12 +248,18 @@ class TelegramBot:
                     continue
                 await self.client.send_message(member.id, message)
                 logger.info(f"Сообщение отправлено пользователю {member.id}")
+                successful_sends += 1
                 await asyncio.sleep(1)
             except FloodWaitError as e:
                 logger.warning(f"Переполнение: задержка на {e.seconds} секунд.")
                 await asyncio.sleep(e.seconds)
             except Exception as e:
                 logger.error(f"Ошибка при отправке сообщения пользователю {member.id}: {e}")
+
+        # Сообщаем админу о количестве успешно отправленных сообщений
+        sender = await event.get_sender()
+        admin_id = sender.id
+        await self.client.send_message(admin_id, f"Сообщение успешно отправлено {successful_sends} участникам.")
 
     def run(self):
         self.client.on(events.NewMessage(pattern='/start'))(self.start)
