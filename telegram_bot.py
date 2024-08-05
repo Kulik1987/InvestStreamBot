@@ -177,7 +177,7 @@ class TelegramBot:
         files = glob.glob(file_pattern)
         if not files:
             logger.error("Файл 'announcement' не найден в директории 'load_data'.")
-            await event.respond("Список участников пуст или не удалось его получить.")
+            await event.respond("Файл анонса не найден в директории, пожалуйста, загрузите файл")
             return
 
         image_path = files[0]  # Предполагается, что найден только один файл
